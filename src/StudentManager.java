@@ -10,44 +10,46 @@ public class StudentManager {
 
     public void findStudentById(){
 
-        try {
+        while (true){
 
-            System.out.print("Nhập ID học sinh muốn xem thông tin: ");
-            int id = sc.nextInt();
-            sc.nextLine();
+            try {
 
-            // check ID phải lớn hơn 0
-            if (id <= 0){
-                System.out.print("ID phải lớn hơn 0! Cần nhập lại ID: ");
+                System.out.print("Nhập ID học sinh muốn xem thông tin: ");
+                int id = sc.nextInt();
                 sc.nextLine();
-            }
 
-            boolean isFound = false;
+                if (id <= 0){
+                    System.out.print("ID phải lớn hơn 0! Cần nhập lại ID: ");
+                    continue;
+                }
 
-            for (int i = 0; i < students.size(); i++){
+                boolean isFound = false;
 
-                if (id == students.get(i).getId()){
-                    // students.get(i) trả về một đối tượng Student. Ví dụ: Student s1 = new Student(1, "An", "CNTT1");
-                    // -> Muốn lấy ID của đối tượng đó thì dùng: students.get(i).getId(). Ví dụ: s1.getId() = 1 (ID của s1)
+                for (Student s : students){
 
-                    isFound = true;
-                    System.out.println("Họ và tên: " + students.get(i).getName() + " - " + "Lớp: " + students.get(i).getClassName());
-                    break;
+                    if (id == s.getId()){
+
+                        isFound = true;
+                        System.out.println("Họ và tên: " + s.getName() + " - " + "Lớp: " + s.getClassName());
+                        break;
+
+                    }
 
                 }
 
+                if (!isFound){
+
+                    System.out.println("Không tìm thấy ID");
+
+                }
+
+                break;
+
+            } catch (InputMismatchException e) {
+                System.out.println("Lỗi: Vui lòng nhập ID là một số nguyên!");
+                sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
             }
 
-            if (!isFound){
-
-                System.out.println("Không tìm thấy ID");
-
-            }
-
-
-        } catch (InputMismatchException e) {
-            System.out.println("Lỗi: Vui lòng nhập ID là một số nguyên!");
-            sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
         }
 
     }
