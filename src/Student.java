@@ -1,50 +1,37 @@
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
-
 public class Student {
 
-    Scanner sc = new Scanner(System.in);
-    List<Integer> listId = new ArrayList<>();
-    List<String> listName = new ArrayList<>();
-    List<String> listClassName = new ArrayList<>();
+    private int id;
+    private String name;
+    private String className;
 
-    public void findStudentById(){
+    public Student(int id, String name, String className){
+        this.id = id;
+        this.name = name;
+        this.className = className;
+    }
 
-        try {
+    public int getId(){
+        return id;
+    }
 
-            System.out.println("Nhập ID học sinh muốn xem thông tin: ");
-            int id = sc.nextInt();
-            sc.nextLine();
+    public void setId(int id){
+        this.id = id;
+    }
 
-            boolean isFound = false;
+    public String getName(){
+        return name;
+    }
 
-            for (int i = 0; i < listId.size(); i++){
+    public void setName(String name){
+        this.name = name;
+    }
 
-                if (id == listId.get(i)){
-                    // listId.get(i) là giá trị ID được lưu ở vị trí i
+    public String getClassName(){
+        return className;
+    }
 
-                    isFound = true;
-                    System.out.println("Họ và tên: " + listName.get(i) + " - " + "Lớp: " + listClassName.get(i));
-                    break;
-
-                }
-
-            }
-
-            if (!isFound){
-
-                System.out.println("Không tìm thấy ID");
-
-            }
-
-
-        } catch (InputMismatchException e) {
-            System.out.println("Lỗi: Vui lòng nhập ID là một số nguyên!");
-            sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
-        }
-
+    public void setClassName(String className){
+        this.className = className;
     }
 
 }

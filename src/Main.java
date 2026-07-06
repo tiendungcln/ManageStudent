@@ -6,16 +6,11 @@ public class Main {
 
     public static void main(String[] args){
 
-        Student s = new Student();
         StudentManager sm = new StudentManager();
 
         int choice;
 
         do {
-
-            System.out.print("Chọn: ");
-            choice = sc.nextInt();
-            sc.nextLine();
 
             System.out.println("1. Xem thông tin 1 học sinh");
             System.out.println("2. Xem thông tin tất cả học sinh");
@@ -24,9 +19,13 @@ public class Main {
             System.out.println("5. Xoá thông tin học sinh");
             System.out.println("0. Thoát chương trình");
 
+            System.out.print("Chọn: ");
+            choice = sc.nextInt();
+            sc.nextLine();
+
             switch (choice){
                 case 1:
-                    s.findStudentById();
+                    sm.findStudentById();
                     break;
                 case 2:
                     sm.showAllStudent();
