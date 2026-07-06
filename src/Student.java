@@ -3,11 +3,13 @@ public class Student {
     private int id;
     private String name;
     private String className;
+    private double gpa;
 
-    public Student(int id, String name, String className){
+    public Student(int id, String name, String className, double gpa){
         this.id = id;
         this.name = name;
         this.className = className;
+        this.gpa = gpa;
     }
 
     public int getId(){
@@ -32,6 +34,14 @@ public class Student {
 
     public void setClassName(String className){
         this.className = className;
+    }
+
+    public double getGpa(){
+        return gpa;
+    }
+
+    public void setGpa(double gpa){
+        this.gpa = gpa;
     }
 
 }

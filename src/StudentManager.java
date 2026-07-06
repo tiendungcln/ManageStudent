@@ -18,18 +18,20 @@ public class StudentManager {
 
             // check ID phải lớn hơn 0
             if (id <= 0){
-                System.out.println("ID phải lớn hơn 0");
+                System.out.print("ID phải lớn hơn 0! Cần nhập lại ID: ");
+                sc.nextLine();
             }
 
             boolean isFound = false;
 
-            for (int i = 0; i < listId.size(); i++){
+            for (int i = 0; i < students.size(); i++){
 
-                if (id == listId.get(i)){
-                    // listId.get(i) là giá trị ID được lưu ở vị trí i
+                if (id == students.get(i).getId()){
+                    // students.get(i) trả về một đối tượng Student. Ví dụ: Student s1 = new Student(1, "An", "CNTT1");
+                    // -> Muốn lấy ID của đối tượng đó thì dùng: students.get(i).getId(). Ví dụ: s1.getId() = 1 (ID của s1)
 
                     isFound = true;
-                    System.out.println("Họ và tên: " + listName.get(i) + " - " + "Lớp: " + listClassName.get(i));
+                    System.out.println("Họ và tên: " + students.get(i).getName() + " - " + "Lớp: " + students.get(i).getClassName());
                     break;
 
                 }
@@ -56,40 +58,103 @@ public class StudentManager {
 
     public void addStudent(){
 
-        try {
+        int id;
+        String name;
+        String className;
+        double gpa;
 
-            System.out.print("Nhập ID: ");
-            int id = sc.nextInt();
-            sc.nextLine();
+        while (true){
 
-            // Check ID
-            if (id <= 0){
-                System.out.println("ID phải lớn hơn 0");
+            try {
+
+                System.out.print("Nhập ID: ");
+                id = sc.nextInt();
+                sc.nextLine();
+
+                if (id <= 0){
+                    System.out.println("ID phải lớn hơn 0");
+                    continue;
+                }
+
+                boolean isDuplicate = false;
+
+                for (Student s : students){
+                    if (s.getId() == id){
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (isDuplicate){
+                    System.out.println("ID đã trùng!");
+                    continue;
+                }
+
+                break;
+
+            } catch (InputMismatchException e) {
+                System.out.println("ID phải là số!");
+                sc.nextLine(); // xóa input sai
             }
+
+        }
+
+        while (true){
 
             System.out.print("Nhập họ và tên: ");
-            String name = sc.nextLine();
+            name = sc.nextLine();
 
             // Check name
-            if (name.isEmpty()){
+            if (name.trim().isEmpty()) {
+                // trim() dùng để: xoá khoảng trắng thừa, tránh user nhập "rỗng giả", làm validate chính xác hơn
                 System.out.println("Họ và tên không được để trống!");
+                continue;
             }
+
+            break;
+
+        }
+
+        while (true){
 
             System.out.print("Nhập lớp: ");
-            String className = sc.nextLine();
+            className = sc.nextLine();
 
             // Check clasName
-            if (className.isEmpty()){
+            if (className.trim().isEmpty()){
                 System.out.println("Lớp không được để trống!");
+                continue;
             }
 
-            listId.add(id);
-            listName.add(name);
-            listClassName.add(className);
+            break;
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+
+        while (true){
+
+            try {
+
+                System.out.print("Nhập điểm trung bình: ");
+                gpa = sc.nextDouble();
+
+                if (gpa < 0 || gpa > 10){
+                    System.out.println("GPA phải là 0 - 10");
+                    continue;
+                }
+
+                break;
+
+            } catch (InputMismatchException e) {
+                System.out.println("GPA phải là số!");
+                sc.nextLine(); // xóa input sai
+            }
+
+        }
+
+        Student student = new Student(id, name, className, gpa);
+        students.add(student);
+
+        System.out.println("Thêm thông tin học sinh thành công!");
 
     }
 
