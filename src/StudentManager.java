@@ -30,7 +30,9 @@ public class StudentManager {
                     if (id == s.getId()){
 
                         isFound = true;
-                        System.out.println("Họ và tên: " + s.getName() + " - " + "Lớp: " + s.getClassName());
+                        System.out.println("Họ và tên: " + s.getName() + " - " +
+                                "Lớp: " + s.getClassName() + " - " +
+                                "GPA: " + s.getGpa());
                         break;
 
                     }
@@ -55,6 +57,22 @@ public class StudentManager {
     }
 
     public void showAllStudent(){
+
+        if (students.isEmpty()){
+            System.out.println("Danh sách học sinh trống!");
+            return;
+        }
+
+        System.out.println("===== DANH SÁCH HỌC SINH =====");
+
+        for (Student s : students){
+
+            System.out.println("ID: " + s.getId() + " - " +
+                    "Họ và tên: " + s.getName() + " - " +
+                    "Lớp: " + s.getClassName() + " - " +
+                    "GPA: " + s.getGpa());
+
+        }
 
     }
 
