@@ -277,6 +277,39 @@ public class StudentManager {
 
     public void deleteStudent(){
 
+        try {
+
+            System.out.print("Nhập ID cần xoá thông tin học sinh: ");
+            int id = sc.nextInt();
+            sc.nextLine();
+
+            boolean isFound = false;
+
+            for (int i = 0; i < students.size(); i++){
+
+                if (id == students.get(i).getId()){
+
+                    isFound = true;
+
+                    students.remove(i);
+                    System.out.println("Xoá thành công");
+                    break;
+
+                }
+
+            }
+
+            if (!isFound){
+                System.out.println("ID không tồn tại!");
+            }
+
+        } catch (InputMismatchException e) {
+
+            System.out.println("ID phải là số nguyên!");
+            sc.nextLine();
+
+        }
+
     }
 
 }
