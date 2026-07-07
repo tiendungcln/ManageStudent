@@ -180,6 +180,99 @@ public class StudentManager {
 
     public void updateStudent(){
 
+        int id;
+        String name;
+        String className;
+        double gpa;
+
+        boolean isFound = false;
+
+        try {
+
+            System.out.print("Nhập ID cần sửa thông tin học sinh: ");
+            id = sc.nextInt();
+            sc.nextLine();
+
+            for (Student s : students){
+
+                if (id == s.getId()){
+
+                    isFound = true;
+
+                    while (true){
+
+                        System.out.print("Họ và tên: ");
+                        name = sc.nextLine();
+
+                        if (name.trim().isEmpty()){
+                            System.out.println("Họ và tên không được để trống");
+                            continue;
+                        }
+
+                        break;
+
+                    }
+
+                    while (true){
+
+                        System.out.print("Lớp: ");
+                        className = sc.nextLine();
+
+                        if (className.trim().isEmpty()){
+                            System.out.println("Lớp không được để trống");
+                            continue;
+                        }
+
+                        break;
+
+                    }
+
+                    while (true){
+
+                        try {
+
+                            System.out.print("GPA: ");
+                            gpa = sc.nextDouble();
+                            sc.nextLine();
+
+                            if (gpa < 0 || gpa > 10){
+                                System.out.println("GPA 0 - 10");
+                                continue;
+                            }
+
+                            break;
+
+                        } catch (InputMismatchException e){
+
+                            System.out.println("Vui lòng nhập số!");
+                            sc.nextLine();
+
+                        }
+
+                    }
+
+                    s.setName(name);
+                    s.setClassName(className);
+                    s.setGpa(gpa);
+
+                    System.out.println("Sửa thông tin thành công");
+                    break;
+
+                }
+
+            }
+
+            if (!isFound){
+                System.out.println("ID không tồn tại!");
+            }
+
+        } catch (InputMismatchException e){
+
+            System.out.println("Lỗi: Vui lòng nhập ID là 1 số nguyên");
+            sc.nextLine();
+
+        }
+
     }
 
     public void deleteStudent(){
