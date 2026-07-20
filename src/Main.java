@@ -1,3 +1,4 @@
+import java.sql.Connection;
 import java.util.Scanner;
 
 public class Main {
@@ -5,6 +6,14 @@ public class Main {
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args){
+
+        Connection connection = DBConnection.getConnection();
+
+        if (connection != null){
+            System.out.println("Kết nối thành công!");
+        }else{
+            System.out.println("Kết nối thất bại!");
+        }
 
         StudentManager sm = new StudentManager();
 
