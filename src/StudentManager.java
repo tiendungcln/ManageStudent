@@ -1,56 +1,78 @@
-import java.util.ArrayList;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Scanner;
 
 public class StudentManager {
 
     Scanner sc = new Scanner(System.in);
-    List<Student> students = new ArrayList<>();
 
     public void findStudentById(){
 
-        while (true){
+        try {
 
-            try {
+            System.out.print("Nhập ID học sinh muốn kiểm tra thông tin: ");
+            int id = sc.nextInt();
+            sc.nextLine();
 
-                System.out.print("Nhập ID học sinh muốn xem thông tin: ");
-                int id = sc.nextInt();
-                sc.nextLine();
+            try (Connection connection = DBConnection.getConnection()){
 
-                if (id <= 0){
-                    System.out.print("ID phải lớn hơn 0! Cần nhập lại ID: ");
-                    continue;
+                // ===== Kiểm tra ID =====
+
+                String checkSql = "SELECT id FROM student WHERE id = ?";
+
+                try (PreparedStatement preparedStatement = connection.prepareStatement(checkSql)){
+
+                    preparedStatement.setInt(1, id);
+
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    if (!resultSet.next()){
+                        System.out.println("ID không tồn tại!");
+                        return;
+                    }
+
                 }
 
-                boolean isFound = false;
+                // ===== Lấy thông tin =====
 
-                for (Student s : students){
+                String sql = "SELECT id, name, className, gpa FROM student WHERE id = ?";
 
-                    if (id == s.getId()){
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
 
-                        isFound = true;
-                        System.out.println("Họ và tên: " + s.getName() + " - " +
-                                "Lớp: " + s.getClassName() + " - " +
-                                "GPA: " + s.getGpa());
-                        break;
+                    preparedStatement.setInt(1, id);
+
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()){
+
+                        int studentId = resultSet.getInt("id");
+                        String name = resultSet.getString("name");
+                        String className = resultSet.getString("className");
+                        double gpa = resultSet.getDouble("gpa");
+
+                        Student student = new Student(studentId, name, className, gpa);
+
+                        System.out.println(student);
 
                     }
 
                 }
 
-                if (!isFound){
+            } catch (SQLException | IOException e){
 
-                    System.out.println("Không tìm thấy ID");
+                System.out.println("Lấy thông tin học sinh thất bại!");
+                e.printStackTrace();
 
-                }
-
-                break;
-
-            } catch (InputMismatchException e) {
-                System.out.println("Lỗi: Vui lòng nhập ID là một số nguyên!");
-                sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
             }
+
+        } catch (InputMismatchException e) {
+
+            System.out.println("Lỗi: Vui lòng nhập ID là một số nguyên!");
+            sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
 
         }
 
@@ -58,19 +80,42 @@ public class StudentManager {
 
     public void showAllStudent(){
 
-        if (students.isEmpty()){
-            System.out.println("Danh sách học sinh trống!");
-            return;
-        }
+        boolean dataIsFound = false;
 
         System.out.println("===== DANH SÁCH HỌC SINH =====");
 
-        for (Student s : students){
+        String sql = "SELECT id, name, className, gpa FROM student";
 
-            System.out.println("ID: " + s.getId() + " - " +
-                    "Họ và tên: " + s.getName() + " - " +
-                    "Lớp: " + s.getClassName() + " - " +
-                    "GPA: " + s.getGpa());
+        try (
+                Connection connection = DBConnection.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ){
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+
+                dataIsFound = true;
+
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String className = resultSet.getString("className");
+                double gpa = resultSet.getDouble("gpa");
+
+                Student student = new Student(id, name, className, gpa);
+
+                System.out.println(student);
+
+            }
+
+            if (!dataIsFound){
+                System.out.println("Danh sách học sinh trống!");
+            }
+
+        } catch (SQLException | IOException e){
+
+            System.out.println("Lấy danh sách học sinh thất bại!");
+            e.printStackTrace();
 
         }
 
@@ -96,25 +141,38 @@ public class StudentManager {
                     continue;
                 }
 
-                boolean isDuplicate = false;
+                // ===== Kiểm tra ID =====
 
-                for (Student s : students){
-                    if (s.getId() == id){
-                        isDuplicate = true;
-                        break;
+                String checkSql = "SELECT id FROM student WHERE id = ?";
+
+                try (
+                        Connection connection = DBConnection.getConnection();
+                        PreparedStatement preparedStatement = connection.prepareStatement(checkSql)
+                ){
+
+                    preparedStatement.setInt(1, id);
+
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()){
+                        System.out.println("ID đã trùng!");
+                        continue;
                     }
-                }
 
-                if (isDuplicate){
-                    System.out.println("ID đã trùng!");
-                    continue;
+                } catch (SQLException | IOException e){
+
+                    System.out.println("Nhập ID thất bại!");
+                    e.printStackTrace();
+
                 }
 
                 break;
 
             } catch (InputMismatchException e) {
+
                 System.out.println("ID phải là số!");
-                sc.nextLine(); // xóa input sai
+                sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
+
             }
 
         }
@@ -124,7 +182,6 @@ public class StudentManager {
             System.out.print("Nhập họ và tên: ");
             name = sc.nextLine();
 
-            // Check name
             if (name.trim().isEmpty()) {
                 // trim() dùng để: xoá khoảng trắng thừa, tránh user nhập "rỗng giả", làm validate chính xác hơn
                 System.out.println("Họ và tên không được để trống!");
@@ -140,7 +197,6 @@ public class StudentManager {
             System.out.print("Nhập lớp: ");
             className = sc.nextLine();
 
-            // Check clasName
             if (className.trim().isEmpty()){
                 System.out.println("Lớp không được để trống!");
                 continue;
@@ -166,113 +222,150 @@ public class StudentManager {
 
             } catch (InputMismatchException e) {
                 System.out.println("GPA phải là số!");
-                sc.nextLine(); // xóa input sai
+                sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
             }
 
         }
 
         Student student = new Student(id, name, className, gpa);
-        students.add(student);
 
-        System.out.println("Thêm thông tin học sinh thành công!");
+        String sql = "INSERT INTO student(id, name, className, gpa) VALUES (?, ?, ?, ?)";
+
+        try (
+                Connection connection = DBConnection.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ) {
+
+            preparedStatement.setInt(1, student.getId());
+            preparedStatement.setString(2, student.getName());
+            preparedStatement.setString(3, student.getClassName());
+            preparedStatement.setDouble(4, student.getGpa());
+
+            int rows = preparedStatement.executeUpdate();
+
+            if (rows > 0){
+                System.out.println("Thêm thông tin học sinh thành công");
+            }else{
+                System.out.println("Thêm thông tin học sinh thất bại!");
+            }
+
+        } catch (SQLException | IOException e){
+
+            System.out.println("Thêm thông tin học sinh thất bại!");
+            e.printStackTrace();
+
+        }
 
     }
 
-    public void updateStudent(){
+    public void updateStudent() {
 
         int id;
         String name;
         String className;
         double gpa;
 
-        boolean isFound = false;
-
         try {
 
-            System.out.print("Nhập ID cần sửa thông tin học sinh: ");
+            System.out.print("Nhập ID cần sửa: ");
             id = sc.nextInt();
             sc.nextLine();
 
-            for (Student s : students){
+            try (Connection connection = DBConnection.getConnection()) {
 
-                if (id == s.getId()){
+                // ===== Kiểm tra ID =====
 
-                    isFound = true;
+                String checkSql = "SELECT id FROM student WHERE id = ?";
 
-                    while (true){
+                try (PreparedStatement checkStatement = connection.prepareStatement(checkSql)) {
 
-                        System.out.print("Họ và tên: ");
-                        name = sc.nextLine();
+                    checkStatement.setInt(1, id);
 
-                        if (name.trim().isEmpty()){
-                            System.out.println("Họ và tên không được để trống");
-                            continue;
-                        }
+                    ResultSet resultSet = checkStatement.executeQuery();
 
-                        break;
-
+                    if (!resultSet.next()) {
+                        System.out.println("ID không tồn tại!");
+                        return;
                     }
-
-                    while (true){
-
-                        System.out.print("Lớp: ");
-                        className = sc.nextLine();
-
-                        if (className.trim().isEmpty()){
-                            System.out.println("Lớp không được để trống");
-                            continue;
-                        }
-
-                        break;
-
-                    }
-
-                    while (true){
-
-                        try {
-
-                            System.out.print("GPA: ");
-                            gpa = sc.nextDouble();
-                            sc.nextLine();
-
-                            if (gpa < 0 || gpa > 10){
-                                System.out.println("GPA 0 - 10");
-                                continue;
-                            }
-
-                            break;
-
-                        } catch (InputMismatchException e){
-
-                            System.out.println("Vui lòng nhập số!");
-                            sc.nextLine();
-
-                        }
-
-                    }
-
-                    s.setName(name);
-                    s.setClassName(className);
-                    s.setGpa(gpa);
-
-                    System.out.println("Sửa thông tin thành công");
-                    break;
 
                 }
 
+                while (true) {
+                    System.out.print("Họ và tên: ");
+                    name = sc.nextLine();
+
+                    if (name.trim().isEmpty()) {
+                        System.out.println("Họ và tên không được để trống!");
+                        continue;
+                    }
+                    break;
+                }
+
+                while (true) {
+                    System.out.print("Lớp: ");
+                    className = sc.nextLine();
+
+                    if (className.trim().isEmpty()) {
+                        System.out.println("Lớp không được để trống!");
+                        continue;
+                    }
+                    break;
+                }
+
+                while (true) {
+
+                    try {
+
+                        System.out.print("GPA: ");
+                        gpa = sc.nextDouble();
+                        sc.nextLine();
+
+                        if (gpa < 0 || gpa > 10) {
+                            System.out.println("GPA phải từ 0 đến 10");
+                            continue;
+                        }
+
+                        break;
+
+                    } catch (InputMismatchException e) {
+                        System.out.println("GPA phải là số!");
+                        sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
+                    }
+                }
+
+                // ===== UPDATE =====
+
+                String updateSql = "UPDATE student SET name = ?, className = ?, gpa = ? WHERE id = ?";
+
+                try (PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+
+                    updateStatement.setString(1, name);
+                    updateStatement.setString(2, className);
+                    updateStatement.setDouble(3, gpa);
+                    updateStatement.setInt(4, id);
+
+                    int rows = updateStatement.executeUpdate();
+
+                    if (rows > 0) {
+                        System.out.println("Cập nhật thông tin học sinh thành công!");
+                    } else {
+                        System.out.println("Cập nhật thất bại!");
+                    }
+                }
+
+            } catch (SQLException | IOException e) {
+
+                System.out.println("Lỗi khi cập nhật học sinh!");
+                e.printStackTrace();
+
             }
 
-            if (!isFound){
-                System.out.println("ID không tồn tại!");
-            }
+        } catch (InputMismatchException e) {
 
-        } catch (InputMismatchException e){
-
-            System.out.println("Lỗi: Vui lòng nhập ID là 1 số nguyên");
-            sc.nextLine();
+            System.out.println("ID phải là số nguyên!");
+            sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
 
         }
-
     }
 
     public void deleteStudent(){
@@ -283,30 +376,51 @@ public class StudentManager {
             int id = sc.nextInt();
             sc.nextLine();
 
-            boolean isFound = false;
+            try (Connection connection = DBConnection.getConnection()) {
 
-            for (int i = 0; i < students.size(); i++){
+                // ===== Kiểm tra ID =====
 
-                if (id == students.get(i).getId()){
+                String checkSql = "SELECT id FROM student WHERE id = ?";
 
-                    isFound = true;
+                try (PreparedStatement checkStatement = connection.prepareStatement(checkSql)) {
 
-                    students.remove(i);
-                    System.out.println("Xoá thành công");
-                    break;
+                    checkStatement.setInt(1, id);
+
+                    ResultSet resultSet = checkStatement.executeQuery();
+
+                    if (!resultSet.next()) {
+                        System.out.println("ID không tồn tại!");
+                        return;
+                    }
 
                 }
 
-            }
+                String deleteSql = "DELETE FROM student WHERE id = ?";
 
-            if (!isFound){
-                System.out.println("ID không tồn tại!");
+                try (PreparedStatement deleteStatement = connection.prepareStatement(deleteSql)){
+
+                    deleteStatement.setInt(1, id);
+
+                    int rows = deleteStatement.executeUpdate();
+
+                    if (rows > 0) {
+                        System.out.println("Xóa thông tin học sinh thành công!");
+                    } else {
+                        System.out.println("Xóa thông tin học sinh thất bại!");
+                    }
+
+                }
+
+            } catch (SQLException | IOException e){
+                System.out.println("Lỗi xoá thông tin học sinh!");
+                e.printStackTrace();
+
             }
 
         } catch (InputMismatchException e) {
 
             System.out.println("ID phải là số nguyên!");
-            sc.nextLine();
+            sc.nextLine(); // Xóa dữ liệu nhập sai khỏi bộ đệm Scanner
 
         }
 

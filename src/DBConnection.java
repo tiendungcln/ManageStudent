@@ -7,9 +7,8 @@ import java.util.Properties;
 
 public class DBConnection {
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException, IOException {
 
-        try {
             // Đọc file cấu hình
             Properties properties = new Properties();
             properties.load(new FileInputStream("database.properties"));
@@ -22,14 +21,5 @@ public class DBConnection {
             // Kết nối database
             return DriverManager.getConnection(url, user, password);
 
-        } catch (IOException e) {
-            System.out.println("Không tìm thấy file database.properties");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("Kết nối thất bại!");
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

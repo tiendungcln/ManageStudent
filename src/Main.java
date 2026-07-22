@@ -1,4 +1,6 @@
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
@@ -7,12 +9,15 @@ public class Main {
 
     public static void main(String[] args){
 
-        Connection connection = DBConnection.getConnection();
+        try (Connection connection = DBConnection.getConnection()) {
 
-        if (connection != null){
             System.out.println("Kết nối thành công!");
-        }else{
+
+        } catch (SQLException | IOException e){
+
             System.out.println("Kết nối thất bại!");
+            e.printStackTrace();
+
         }
 
         StudentManager sm = new StudentManager();
@@ -52,7 +57,7 @@ public class Main {
                     System.out.println("Thoát chương trình");
             }
 
-        } while (choice != 0); // Nếu đúng đk nó sẽ quay lại chạy khối do, còn khác đk nó sẽ thoát vòng lặp
+        } while (choice != 0); // Nếu đúng đk nó sẽ quay lại chạy khối do, còn sai đk nó sẽ thoát vòng lặp
 
         sc.close();
 

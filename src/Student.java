@@ -44,4 +44,12 @@ public class Student {
         this.gpa = gpa;
     }
 
+    @Override
+    public String toString() {
+        return String.format(
+                "ID: %d | Họ và tên: %-10s | Lớp: %-10s | GPA: %.1f",
+                id, name, className, gpa
+        );
+    }
+
 }
